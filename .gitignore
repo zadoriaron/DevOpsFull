@@ -16,8 +16,8 @@ FRONTEND/perfume-store/src/environments/*.ts
 # Visual Studio ideiglenes fájlok
 **/.vs/
 # Build output
-BACKEND/FragranceEndpoint.Api/bin/
-BACKEND/FragranceEndpoint.Api/obj/
+BACKEND/**/bin/
+BACKEND/**/obj/
 # User-specific files
 *.user
 *.suo
