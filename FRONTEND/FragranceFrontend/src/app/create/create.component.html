@@ -1,1 +1,6 @@
-<p>create works!</p>
+<input type="text" placeholder="Brand" [(ngModel)] = "newFragrance.brand">
+<input type="text" placeholder="Name" [(ngModel)] = "newFragrance.name">
+<input type="number" placeholder="Price" [(ngModel)] = "newFragrance.price">
+<input type="text" placeholder="PictureUrl" [(ngModel)] = "newFragrance.pictureUrl">
+
+<button (click)="submit()">Submit</button>
