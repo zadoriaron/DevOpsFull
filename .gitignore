@@ -1,0 +1,38 @@
+# -----------------
+# Angular Frontend
+# -----------------
+# Node modules
+FRONTEND/perfume-store/node_modules/
+# Build output
+FRONTEND/perfume-store/dist/
+# Angular cache
+FRONTEND/perfume-store/.angular/
+# Environment files (ha szükséges)
+FRONTEND/perfume-store/src/environments/*.ts
+
+# -----------------
+# ASP.NET Backend
+# -----------------
+# Visual Studio ideiglenes fájlok
+**/.vs/
+# Build output
+BACKEND/PerfumeStore.Api/bin/
+BACKEND/PerfumeStore.Api/obj/
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+# Rider/JetBrains
+.idea/
+*.iml
+
+# -----------------
+# OS & Editor
+# -----------------
+# Windows thumbnail cache
+Thumbs.db
+# macOS
+.DS_Store
+# VS Code
+.vscode/
