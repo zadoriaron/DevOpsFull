@@ -1,0 +1,27 @@
+.navbar {
+  display: flex;
+  gap: 20px;                   /* linkek közti távolság */
+  padding: 12px 24px;
+  background-color: #333;      /* sötét háttér */
+  color: white;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar a:hover {
+  background-color: #555;      /* hover effekt */
+}
+
+.navbar a.active {
+  background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
+}
