@@ -24,7 +24,7 @@
   {
     "ContainingType": "DevOpsProject.Controllers.FragranceController",
     "Method": "AddFragrance",
-    "RelativePath": "Fragrance/AddFragfrance",
+    "RelativePath": "Fragrance/AddFragrance",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -37,8 +37,12 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Void",
-        "MediaTypes": [],
+        "Type": "Fragrance_Data.Models.FragranceModel",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
         "StatusCode": 200
       }
     ]

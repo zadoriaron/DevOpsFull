@@ -27,9 +27,9 @@ export class DataService {
   {
     return this.http.post<Fragrance>(environment.apis.create, newfrag).pipe(
 
-      tap((newfrag:Fragrance) => {
+      tap((frag:Fragrance) => {
         const current = this._perfumes.value
-        this._perfumes.next([...current, newfrag])
+        this._perfumes.next([...current, frag])
       })
     )
   }
