@@ -15,8 +15,8 @@ namespace DevOpsProject.Controllers
             this.repo = repo;
         }
 
-        [HttpPost("AddFragfrance")]
-        public void AddFragrance([FromBody] FragranceCreateDto dto)
+        [HttpPost("AddFragrance")]
+        public ActionResult<FragranceModel> AddFragrance([FromBody] FragranceCreateDto dto)
         {
             FragranceModel model = new FragranceModel()
             {
@@ -27,6 +27,8 @@ namespace DevOpsProject.Controllers
             };
 
             repo.Create(model);
+
+            return Ok(model); // visszaküldjük a létrehozott objektumot
         }
 
         [HttpGet("GetFragrances")]

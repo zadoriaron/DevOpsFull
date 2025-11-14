@@ -1,0 +1,35 @@
+.perfume-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Arial, sans-serif;
+}
+
+.perfume-table th,
+.perfume-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.perfume-table th {
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.perfume-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.perfume-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.perfume-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;   /* a teljes kép látszik, nem vágja le */
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  background-color: #fff; /* ha van üres hely, fehér legyen */
+}
+

@@ -42,6 +42,8 @@ namespace DevOpsProject
 
             app.UseHttpsRedirection();
 
+            app.UseCors("AllowFrontend");
+
             app.UseAuthorization();
 
 

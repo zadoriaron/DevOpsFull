@@ -5,7 +5,7 @@
     "version": "1.0"
   },
   "paths": {
-    "/Fragrance/AddFragfrance": {
+    "/Fragrance/AddFragrance": {
       "post": {
         "tags": [
           "Fragrance"
@@ -31,7 +31,24 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FragranceModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FragranceModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FragranceModel"
+                }
+              }
+            }
           }
         }
       }
