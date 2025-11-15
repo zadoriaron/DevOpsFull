@@ -15,16 +15,18 @@ namespace DevOpsProject
 
             builder.Services.AddDbContext<DevOpsProjectDbContext>(options =>
             {
-                options.UseSqlServer("Server=(localdb)\\DevOPsProject;Database=FragranceDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True");
+                options.UseSqlServer(builder.Configuration["db:conn"]);
             });
 
-            builder.Services.AddCors(options =>
+            builder.Services.AddCors();
+
+            if(builder.Environment.IsProduction())
             {
-                options.AddPolicy("AllowFrontend", builder =>
-                    builder.WithOrigins("http://localhost:4200")  // Frontend URL
-                           .AllowAnyHeader()
-                           .AllowAnyMethod());
-            });
+                builder.WebHost.ConfigureKestrel(options =>
+                {
+                    options.ListenAnyIP(int.Parse(builder.Configuration["settings:port"] ?? "6500"));
+                });
+            }
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -42,7 +44,11 @@ namespace DevOpsProject
 
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowFrontend");
+            app.UseCors(t => t
+            .WithOrigins(builder.Configuration["settings:frontend"] ?? "http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .AllowAnyMethod());
 
             app.UseAuthorization();
 
