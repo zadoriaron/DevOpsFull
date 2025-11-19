@@ -40,25 +40,25 @@ jobs:
             /p:IncludeNativeLibrariesForSelfExtract=true \
             /p:PublishTrimmed=false
 
-      - name: Modify appsettings.json in publish output
+      - name: Patch appsettings.json in publish folder
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
-
+      
           JSON_FILE="${PUBLISH_DIR}/appsettings.json"
-
-          # Biztonsági mentés
-          cp "$JSON_FILE" "${JSON_FILE}.bak"
-
-          # Port, frontend URL, DB_CONN módosítása
-          jq \
+      
+          # PORT + FRONTEND + DB_CONN csere
+          sudo jq \
             --arg port "6500" \
-            --arg frontend "${{ env.FRONTEND_URL }}" \
+            --arg frontend "https://mydevopsserver.hu" \
             --arg conn "${{ secrets.DB_CONN }}" \
-            '.settings.port = $port | .settings.frontend = $frontend | .db.conn = $conn' \
-            "$JSON_FILE" > "${JSON_FILE}.tmp"
+            '.settings.port = $port
+             | .settings.frontend = $frontend
+             | .db.conn = $conn' \
+            "$JSON_FILE" | sudo tee "$JSON_FILE.tmp" > /dev/null
+      
+          sudo mv "$JSON_FILE.tmp" "$JSON_FILE"
 
-          mv "${JSON_FILE}.tmp" "$JSON_FILE"
 
       - name: Upload build to server
         uses: appleboy/scp-action@v0.1.4
