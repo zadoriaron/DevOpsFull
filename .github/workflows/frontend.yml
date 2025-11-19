@@ -38,7 +38,7 @@ jobs:
 
       - name: Override config.json
         run: |
-          CONFIG="${{ env.APP_DIR }}/src/public/config.json"
+          CONFIG="${{ env.APP_DIR }}/src/config.json"
           jq --arg url "${{ env.BACKEND_URL }}" '.backendUrl = $url' "$CONFIG" \
             > "$CONFIG.tmp"
           mv "$CONFIG.tmp" "$CONFIG"
