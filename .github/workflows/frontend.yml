@@ -35,7 +35,13 @@ jobs:
       - name: Override environment.ts (backend URL)
         run: |
           FILE="${{ env.APP_DIR }}/src/environments/environment.ts"
-          sed -i "s#backendUrl: .*#backendUrl: '${{ env.BACKEND_URL }}',#" "$FILE"
+          sed -i "s#backendUrl:.*#backendUrl: '${{ env.BACKEND_URL }}',#" "$FILE"
+
+      - name: Patch config.json (backend URL)
+        run: |
+          CONFIG="${{ env.APP_DIR }}/src/assets/config.json"
+          jq --arg url "${{ env.BACKEND_URL }}" '.backendUrl = $url' "$CONFIG" > "${CONFIG}.tmp"
+          mv "${CONFIG}.tmp" "$CONFIG"
 
       - name: Build Angular
         run: npm run build -- --configuration production
@@ -56,6 +62,7 @@ jobs:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
           source: "frontend-${{ github.sha }}.tar.gz"
           target: "/tmp/"
 
@@ -65,6 +72,7 @@ jobs:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
           script: |
             set -euo pipefail
 
@@ -77,26 +85,4 @@ jobs:
             sudo mkdir -p "$RELEASES"
             sudo mkdir -p "$BASE"
 
-            # Kibontás
             sudo mkdir -p "$NEW_RELEASE"
-            sudo tar -xzf "/tmp/frontend-${{ github.sha }}.tar.gz" -C "$NEW_RELEASE"
-            sudo rm -f "/tmp/frontend-${{ github.sha }}.tar.gz"
-
-            # 🔥 config.json backendUrl csere
-            if sudo test -f "$NEW_RELEASE/config.json"; then
-              sudo jq --arg url "${{ env.BACKEND_URL }}" '.backend = $url' \
-                "$NEW_RELEASE/config.json" | sudo tee "$NEW_RELEASE/config.json.tmp" >/dev/null
-              sudo mv "$NEW_RELEASE/config.json.tmp" "$NEW_RELEASE/config.json"
-            fi
-
-            # Symlink csere
-            sudo ln -sfn "$NEW_RELEASE" "$CURRENT"
-
-            # Régi release-ek törlése
-            COUNT=$(ls -1dt "$RELEASES"/* 2>/dev/null | wc -l || true)
-            if [ "$COUNT" -gt 5 ]; then
-              ls -1dt "$RELEASES"/* | tail -n +6 | xargs -r sudo rm -rf
-            fi
-
-            echo "🔥 Frontend deploy kész!"
-            echo "Aktív verzió: $(readlink -f "$CURRENT")"
