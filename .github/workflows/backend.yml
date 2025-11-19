@@ -20,6 +20,7 @@ jobs:
       SSH_USER: root
 
     steps:
+
     - name: Checkout repository
       uses: actions/checkout@v3
 
@@ -28,7 +29,6 @@ jobs:
       with:
         dotnet-version: "8.0.x"
 
-    # --- BUILD ---
     - name: Publish backend (self-contained single-file)
       run: |
         dotnet publish $PROJECT_PATH \
@@ -40,19 +40,22 @@ jobs:
           /p:IncludeNativeLibrariesForSelfExtract=true \
           /p:PublishTrimmed=false
 
-    # --- CONFIG FIXES ---
-    - name: Update appsettings.json in publish output
+    # 🔥 FIX CONFIG VALUES IN PUBLISH OUTPUT (SAFE)
+    - name: Install jq
+      run: sudo apt-get install -y jq
+
+    - name: Fix appsettings.json (port, frontend, DB)
       run: |
-        # 1) Fix Kestrel port
-        sed -i 's/"port":"6600"/"port":"6500"/g' $PUBLISH_DIR/appsettings.json
+        json=$(cat $PUBLISH_DIR/appsettings.json)
 
-        # 2) Fix frontend URL
-        sed -i 's#"frontend": "http://localhost:4200"#"frontend": "https://mydevopsserver.hu"#g' $PUBLISH_DIR/appsettings.json
+        json=$(echo "$json" \
+          | jq '.settings.port = "6500"' \
+          | jq '.settings.frontend = "https://mydevopsserver.hu"' \
+          | jq --arg conn "${{ secrets.DB_CONN }}" '.db.conn = $conn'
+        )
 
-        # 3) Replace DB connection string with secret
-        sed -i "s#\"conn\": \".*\"#\"conn\": \"${{ secrets.DB_CONN }}\"#g" $PUBLISH_DIR/appsettings.json
+        echo "$json" > $PUBLISH_DIR/appsettings.json
 
-    # --- DEPLOY ---
     - name: Upload build to server
       uses: appleboy/scp-action@v0.1.4
       with:
