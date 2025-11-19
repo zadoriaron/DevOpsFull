@@ -24,7 +24,7 @@ namespace DevOpsProject
             {
                 builder.WebHost.ConfigureKestrel(options =>
                 {
-                    options.ListenAnyIP(int.Parse(builder.Configuration["settings:port"] ?? "6500"));
+                    options.ListenAnyIP(int.Parse(builder.Configuration["settings:port"] ?? "6600"));
                 });
             }
 
@@ -42,15 +42,11 @@ namespace DevOpsProject
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-
             app.UseCors(t => t
             .WithOrigins(builder.Configuration["settings:frontend"] ?? "http://localhost:4200")
             .AllowAnyHeader()
             .AllowCredentials()
             .AllowAnyMethod());
-
-            app.UseAuthorization();
 
 
             app.MapControllers();
