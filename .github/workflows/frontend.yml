@@ -31,17 +31,21 @@ jobs:
         run: npm ci
         working-directory: ${{ env.APP_DIR }}
 
+      # environment.ts PATCH
       - name: Override environment.ts
         run: |
           FILE="${{ env.APP_DIR }}/src/environments/environment.ts"
           sed -i "s#backendUrl:.*#backendUrl: '${{ env.BACKEND_URL }}',#" "$FILE"
 
+      # config.json PATCH (HELYES ÚTVONAL!)
       - name: Override config.json
         run: |
-          CONFIG="${{ env.APP_DIR }}/src/config.json"
-          jq --arg url "${{ env.BACKEND_URL }}" '.backendUrl = $url' "$CONFIG" \
-            > "$CONFIG.tmp"
-          mv "$CONFIG.tmp" "$CONFIG"
+          CONFIG="${{ env.APP_DIR }}/public/config.json"
+          echo "Backend URL config.json patch → $CONFIG"
+          jq --arg url "${{ env.BACKEND_URL }}" \
+            '.backendUrl = $url' \
+            "$CONFIG" > "${CONFIG}.tmp"
+          mv "${CONFIG}.tmp" "$CONFIG"
 
       - name: Build Angular
         run: npm run build -- --configuration production
