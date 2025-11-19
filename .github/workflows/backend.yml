@@ -43,6 +43,11 @@ jobs:
           /p:IncludeNativeLibrariesForSelfExtract=true \
           /p:PublishTrimmed=false
 
+    - name: Fix Kestrel port IN PUBLISH OUTPUT
+      run: |
+        sed -i 's/"port":"6600"/"port":"6500"/g' $PUBLISH_DIR/appsettings.json
+
+
     - name: Upload build to server
       uses: appleboy/scp-action@v0.1.4
       with:
