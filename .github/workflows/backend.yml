@@ -1,0 +1,60 @@
+name: Deploy Backend to Production
+
+on:
+  push:
+    branches: ["master"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_PATH: BACKEND/FragranceEndpoint/FragranceEndpoint/FragranceEndpoint.csproj
+      PUBLISH_DIR: publish
+      RUNTIME: linux-x64
+      REMOTE_BASE: /var/backend
+      REMOTE_RELEASES: /var/backend/releases
+      REMOTE_CURRENT: /var/backend/current
+      SERVICE_NAME: FragranceEndpoint
+      SSH_HOST: mydevopsserver.hu
+      SSH_USER: root
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: "8.0.x"
+
+    - name: Publish backend (self-contained single-file)
+      run: |
+        dotnet publish $PROJECT_PATH \
+          -c Release \
+          -o $PUBLISH_DIR \
+          -r $RUNTIME \
+          --self-contained true \
+          /p:PublishSingleFile=true \
+          /p:IncludeNativeLibrariesForSelfExtract=true \
+          /p:PublishTrimmed=false
+
+    - name: Upload build to server
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ env.SSH_HOST }}
+        username: ${{ env.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        source: "${{ env.PUBLISH_DIR }}/*"
+        target: "${{ env.REMOTE_RELEASES }}/release-${{ github.run_number }}/"
+
+    - name: Activate release & restart service
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ env.SSH_HOST }}
+        username: ${{ env.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          sudo rm -f ${{ env.REMOTE_CURRENT }}
+          sudo ln -s "${{ env.REMOTE_RELEASES }}/release-${{ github.run_number }}" ${{ env.REMOTE_CURRENT }}
+          sudo systemctl restart ${{ env.SERVICE_NAME }}
