@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      APP_DIR: FRONTEND
-      DIST_DIR: FRONTEND/dist/frontend/browser   # <-- EZT javítottam!
+      APP_DIR: FRONTEND/FragranceFrontend
+      DIST_DIR: FRONTEND/FragranceFrontend/dist/fragrance-frontend/browser
       REMOTE_BASE: /var/frontend
       REMOTE_RELEASES: /var/frontend/releases
       REMOTE_CURRENT: /var/frontend/current
@@ -19,7 +19,6 @@ jobs:
       SSH_USER: root
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -32,13 +31,21 @@ jobs:
         run: npm ci
         working-directory: ${{ env.APP_DIR }}
 
-      - name: Override environment.ts (backend URL)
+      # environment.ts PATCH
+      - name: Override environment.ts
         run: |
           FILE="${{ env.APP_DIR }}/src/environments/environment.ts"
-          echo "➡ Backend URL csere: ${{ env.BACKEND_URL }}"
           sed -i "s#backendUrl:.*#backendUrl: '${{ env.BACKEND_URL }}',#" "$FILE"
-          echo "Új environment.ts:"
-          cat "$FILE"
+
+      # config.json PATCH (HELYES ÚTVONAL!)
+      - name: Override config.json
+        run: |
+          CONFIG="${{ env.APP_DIR }}/public/config.json"
+          echo "Backend URL config.json patch → $CONFIG"
+          jq --arg url "${{ env.BACKEND_URL }}" \
+            '.backendUrl = $url' \
+            "$CONFIG" > "${CONFIG}.tmp"
+          mv "${CONFIG}.tmp" "$CONFIG"
 
       - name: Build Angular
         run: npm run build -- --configuration production
@@ -53,39 +60,40 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H "${{ env.SSH_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Upload dist via SCP
+      - name: Upload frontend via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
           source: "frontend-${{ github.sha }}.tar.gz"
           target: "/tmp/"
 
-      - name: Deploy frontend on server
+      - name: Deploy on server
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
           script: |
-            set -euo pipefail
-
             BASE="${{ env.REMOTE_BASE }}"
             RELEASES="${{ env.REMOTE_RELEASES }}"
             CURRENT="${{ env.REMOTE_CURRENT }}"
             TS="$(date +%Y%m%d%H%M%S)-${{ github.sha }}"
             NEW_RELEASE="${RELEASES}/${TS}"
 
-            sudo mkdir -p "$RELEASES"
-            sudo mkdir -p "$BASE"
+            sudo mkdir -p "$RELEASES" "$BASE" "$NEW_RELEASE"
 
-            sudo mkdir -p "$NEW_RELEASE"
             sudo tar -xzf "/tmp/frontend-${{ github.sha }}.tar.gz" -C "$NEW_RELEASE"
             sudo rm -f "/tmp/frontend-${{ github.sha }}.tar.gz"
 
             sudo ln -sfn "$NEW_RELEASE" "$CURRENT"
 
-            COUNT=$(ls -1dt "$RELEASES"/* 2>/dev/null | wc -l || true)
+            COUNT=$(ls -1dt "$RELEASES"/* | wc -l)
             if [ "$COUNT" -gt 5 ]; then
-              ls -1dt "$RELEASES"/* | tail -*
+              ls -1dt "$RELEASES"/* | tail -n +6 | xargs -r sudo rm -rf
+            fi
+
+            echo "Frontend deploy kész!"
