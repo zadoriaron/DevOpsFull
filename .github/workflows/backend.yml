@@ -23,20 +23,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    - name: Fix Kestrel port in appsettings.json
+      run: |
+        sed -i 's/6600/6500/g' BACKEND/FragranceEndpoint/FragranceEndpoint/appsettings.json
+
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: "8.0.x"
-
-    - name: Patch appsettings.json for PROD (port + optional DB conn)
-      run: |
-        # Port csere 6600 -> 6500
-        sed -i 's/6600/6500/g' BACKEND/FragranceEndpoint/FragranceEndpoint/appsettings.json
-
-        # Ha szeretnéd a DB connection stringet is innen beégetni,
-        # akkor appsettings.json-ben legyen egy "__DB_CONN__" placeholder
-        # és ezt a sort feloldhatod:
-        # sed -i 's|__DB_CONN__|'"${{ secrets.DB_CONN }}"'|g' BACKEND/FragranceEndpoint/FragranceEndpoint/appsettings.json
 
     - name: Publish backend (self-contained single-file)
       run: |
@@ -55,8 +49,9 @@ jobs:
         host: ${{ env.SSH_HOST }}
         username: ${{ env.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASS }}
         source: "${{ env.PUBLISH_DIR }}/*"
-        target: "${{ env.REMOTE_RELEASES }}/release-${{ github.run_number }}/publish/"
+        target: "${{ env.REMOTE_RELEASES }}/release-${{ github.run_number }}/"
 
     - name: Activate release & restart service
       uses: appleboy/ssh-action@v1.2.0
@@ -64,6 +59,7 @@ jobs:
         host: ${{ env.SSH_HOST }}
         username: ${{ env.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASS }}
         script: |
           sudo rm -f ${{ env.REMOTE_CURRENT }}
           sudo ln -s "${{ env.REMOTE_RELEASES }}/release-${{ github.run_number }}" ${{ env.REMOTE_CURRENT }}
