@@ -1,0 +1,91 @@
+name: Deploy Angular Frontend
+
+on:
+  push:
+    branches: ["master"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_DIR: FRONTEND
+      DIST_DIR: FRONTEND/dist/frontend/browser   # <-- EZT javítottam!
+      REMOTE_BASE: /var/frontend
+      REMOTE_RELEASES: /var/frontend/releases
+      REMOTE_CURRENT: /var/frontend/current
+      BACKEND_URL: https://api.mydevopsserver.hu
+      SSH_HOST: mydevopsserver.hu
+      SSH_USER: root
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Override environment.ts (backend URL)
+        run: |
+          FILE="${{ env.APP_DIR }}/src/environments/environment.ts"
+          echo "➡ Backend URL csere: ${{ env.BACKEND_URL }}"
+          sed -i "s#backendUrl:.*#backendUrl: '${{ env.BACKEND_URL }}',#" "$FILE"
+          echo "Új environment.ts:"
+          cat "$FILE"
+
+      - name: Build Angular
+        run: npm run build -- --configuration production
+        working-directory: ${{ env.APP_DIR }}
+
+      - name: Pack dist folder
+        run: |
+          tar -C ${{ env.DIST_DIR }} -czf frontend-${{ github.sha }}.tar.gz .
+
+      - name: Add remote host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ env.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Upload dist via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "frontend-${{ github.sha }}.tar.gz"
+          target: "/tmp/"
+
+      - name: Deploy frontend on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -euo pipefail
+
+            BASE="${{ env.REMOTE_BASE }}"
+            RELEASES="${{ env.REMOTE_RELEASES }}"
+            CURRENT="${{ env.REMOTE_CURRENT }}"
+            TS="$(date +%Y%m%d%H%M%S)-${{ github.sha }}"
+            NEW_RELEASE="${RELEASES}/${TS}"
+
+            sudo mkdir -p "$RELEASES"
+            sudo mkdir -p "$BASE"
+
+            sudo mkdir -p "$NEW_RELEASE"
+            sudo tar -xzf "/tmp/frontend-${{ github.sha }}.tar.gz" -C "$NEW_RELEASE"
+            sudo rm -f "/tmp/frontend-${{ github.sha }}.tar.gz"
+
+            sudo ln -sfn "$NEW_RELEASE" "$CURRENT"
+
+            COUNT=$(ls -1dt "$RELEASES"/* 2>/dev/null | wc -l || true)
+            if [ "$COUNT" -gt 5 ]; then
+              ls -1dt "$RELEASES"/* | tail -*
