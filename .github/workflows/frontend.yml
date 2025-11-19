@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      APP_DIR: FRONTEND
-      DIST_DIR: FRONTEND/dist/frontend/browser   # <-- EZT javítottam!
+      APP_DIR: FRONTEND/FragranceFrontend
+      DIST_DIR: FRONTEND/FragranceFrontend/dist/fragrance-frontend/browser
       REMOTE_BASE: /var/frontend
       REMOTE_RELEASES: /var/frontend/releases
       REMOTE_CURRENT: /var/frontend/current
@@ -29,7 +29,7 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
         working-directory: ${{ env.APP_DIR }}
 
       - name: Override environment.ts (backend URL)
@@ -37,7 +37,6 @@ jobs:
           FILE="${{ env.APP_DIR }}/src/environments/environment.ts"
           echo "➡ Backend URL csere: ${{ env.BACKEND_URL }}"
           sed -i "s#backendUrl:.*#backendUrl: '${{ env.BACKEND_URL }}',#" "$FILE"
-          echo "Új environment.ts:"
           cat "$FILE"
 
       - name: Build Angular
@@ -80,12 +79,19 @@ jobs:
             sudo mkdir -p "$RELEASES"
             sudo mkdir -p "$BASE"
 
+            # Új build kibontása
             sudo mkdir -p "$NEW_RELEASE"
             sudo tar -xzf "/tmp/frontend-${{ github.sha }}.tar.gz" -C "$NEW_RELEASE"
             sudo rm -f "/tmp/frontend-${{ github.sha }}.tar.gz"
 
+            # Symlink csere
             sudo ln -sfn "$NEW_RELEASE" "$CURRENT"
 
+            # Régi release-ek tisztítása
             COUNT=$(ls -1dt "$RELEASES"/* 2>/dev/null | wc -l || true)
             if [ "$COUNT" -gt 5 ]; then
-              ls -1dt "$RELEASES"/* | tail -*
+              ls -1dt "$RELEASES"/* | tail -n +6 | xargs -r sudo rm -rf
+            fi
+
+            echo "🔥 Frontend deploy kész!"
+            echo "Aktív verzió: $(readlink -f "$CURRENT")"
