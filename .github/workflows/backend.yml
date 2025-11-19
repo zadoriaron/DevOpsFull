@@ -39,21 +39,23 @@ jobs:
           /p:IncludeNativeLibrariesForSelfExtract=true \
           /p:PublishTrimmed=false
 
-    - name: Upload build to server
+    - name: Upload build to server (scp)
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ env.SSH_HOST }}
         username: ${{ env.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASS }}   # <<< Kulcs passphrase hozzáadva
         source: "${{ env.PUBLISH_DIR }}/*"
         target: "${{ env.REMOTE_RELEASES }}/release-${{ github.run_number }}/"
 
-    - name: Activate release & restart service
+    - name: Activate new release & restart service
       uses: appleboy/ssh-action@v1.2.0
       with:
         host: ${{ env.SSH_HOST }}
         username: ${{ env.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASS }}   # <<< Kulcs passphrase kötelező
         script: |
           sudo rm -f ${{ env.REMOTE_CURRENT }}
           sudo ln -s "${{ env.REMOTE_RELEASES }}/release-${{ github.run_number }}" ${{ env.REMOTE_CURRENT }}
