@@ -23,15 +23,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Fix Kestrel port in appsettings.json
-      run: |
-        sed -i 's/6600/6500/g' BACKEND/FragranceEndpoint/FragranceEndpoint/appsettings.json
-
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: "8.0.x"
 
+    # --- BUILD ---
     - name: Publish backend (self-contained single-file)
       run: |
         dotnet publish $PROJECT_PATH \
@@ -43,11 +40,19 @@ jobs:
           /p:IncludeNativeLibrariesForSelfExtract=true \
           /p:PublishTrimmed=false
 
-    - name: Fix Kestrel port IN PUBLISH OUTPUT
+    # --- CONFIG FIXES ---
+    - name: Update appsettings.json in publish output
       run: |
+        # 1) Fix Kestrel port
         sed -i 's/"port":"6600"/"port":"6500"/g' $PUBLISH_DIR/appsettings.json
 
+        # 2) Fix frontend URL
+        sed -i 's#"frontend": "http://localhost:4200"#"frontend": "https://mydevopsserver.hu"#g' $PUBLISH_DIR/appsettings.json
 
+        # 3) Replace DB connection string with secret
+        sed -i "s#\"conn\": \".*\"#\"conn\": \"${{ secrets.DB_CONN }}\"#g" $PUBLISH_DIR/appsettings.json
+
+    # --- DEPLOY ---
     - name: Upload build to server
       uses: appleboy/scp-action@v0.1.4
       with:
