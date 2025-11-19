@@ -37,6 +37,7 @@ jobs:
           FILE="${{ env.APP_DIR }}/src/environments/environment.ts"
           echo "➡ Backend URL csere: ${{ env.BACKEND_URL }}"
           sed -i "s#backendUrl:.*#backendUrl: '${{ env.BACKEND_URL }}',#" "$FILE"
+          echo "Új environment.ts:"
           cat "$FILE"
 
       - name: Build Angular
@@ -58,6 +59,7 @@ jobs:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
           source: "frontend-${{ github.sha }}.tar.gz"
           target: "/tmp/"
 
@@ -67,6 +69,7 @@ jobs:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASS }}
           script: |
             set -euo pipefail
 
