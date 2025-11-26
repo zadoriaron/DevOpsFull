@@ -12,3 +12,4 @@ C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\Fragra
 C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\FragranceEndpoint\Fragrance_Data\obj\Debug\net8.0\Fragrance_Data.pdb
 C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\FragranceEndpoint\Fragrance_Data\obj\Debug\net8.0\Fragrance_Data.genruntimeconfig.cache
 C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\FragranceEndpoint\Fragrance_Data\obj\Debug\net8.0\ref\Fragrance_Data.dll
+C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\FragranceEndpoint\Fragrance_Data\obj\Debug\net8.0\Fragrance_Data.sourcelink.json
