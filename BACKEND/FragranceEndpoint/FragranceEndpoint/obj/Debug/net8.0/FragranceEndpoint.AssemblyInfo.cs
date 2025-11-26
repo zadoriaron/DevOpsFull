@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FragranceEndpoint")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+556e26d8f5f19e69613b33c9a48b4bebe43d5132")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+98cded6a0f94739098c122ae2d3661def9404d27")]
 [assembly: System.Reflection.AssemblyProductAttribute("FragranceEndpoint")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FragranceEndpoint")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
