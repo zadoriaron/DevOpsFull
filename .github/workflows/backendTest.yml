@@ -94,7 +94,7 @@ jobs:
             APPSET="$NEW_RELEASE/appsettings.json"
 
             sudo jq \
-              --arg port "6500" \
+              --arg port "6600" \
               --arg frontend "${{ env.FRONTEND_URL }}" \
               --arg conn "${{ secrets.DB_CONNTEST }}" \
               '.settings.port = $port
