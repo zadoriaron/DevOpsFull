@@ -17,7 +17,7 @@ jobs:
       REMOTE_RELEASES: /var/testBackend/releases
       REMOTE_CURRENT: /var/testBackend/current
 
-      SERVICE_NAME: FragranceEndpoint
+      SERVICE_NAME: fragrance-test-backend
 
       SSH_HOST: mydevopsserver.hu
       SSH_USER: root
