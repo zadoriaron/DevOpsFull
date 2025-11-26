@@ -1,0 +1,6 @@
+@FragranceEndpoint_HostAddress = http://localhost:5047
+
+GET {{FragranceEndpoint_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
