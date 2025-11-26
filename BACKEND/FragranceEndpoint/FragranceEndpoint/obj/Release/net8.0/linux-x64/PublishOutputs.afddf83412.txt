@@ -1,0 +1,5 @@
+C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\FragranceEndpoint\FragranceEndpoint\obj\Release\net8.0\linux-x64\PubTmp\Out\appsettings.Development.json
+C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\FragranceEndpoint\FragranceEndpoint\obj\Release\net8.0\linux-x64\PubTmp\Out\appsettings.json
+C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\FragranceEndpoint\FragranceEndpoint\obj\Release\net8.0\linux-x64\PubTmp\Out\FragranceEndpoint.pdb
+C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\FragranceEndpoint\FragranceEndpoint\obj\Release\net8.0\linux-x64\PubTmp\Out\Fragrance_Data.pdb
+C:\Users\Áron\OneDrive - Óbudai egyetem\Dokumentumok\DevOpsFull\BACKEND\FragranceEndpoint\FragranceEndpoint\obj\Release\net8.0\linux-x64\PubTmp\Out\FragranceEndpoint
